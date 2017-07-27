@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>WEUI input表单-移动radio</title>
+  <style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  .weui-cells__title {
+    /*em 相对单位 当前元素font-size的倍数 mt=.77*14 */
+    margin-top: .77em;
+    font-style: 14px;
+    color: #999;
+    margin-bottom: .3em;
+    /*手机有一屏高 大屏手机就高点
+    垂直高度会更严苛一点*/
+    padding-left: 15px; /*也可以写成1.07em 15/14=1.07*/
+    padding-right: 15px;
+    /*不care左右 有点手机的偏差 不推荐*/
+    /*什么时候用什么单位?  手机适配问题 px是不靠谱的
+    所以用相对单位(em相对较老的方案需要确定每个元素,rem与html的font-size有关,vh,vw)
+    相对单位可以在所以设备上看上去一模一样*/
+  }
+  .weui-cells {
+    background-color: #fff;
+    line-height: 1.47058824;
+    font-size: 17px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 1.17647050em;
+  }
+  /*weui-cells可能在一个页面有多个 相互之间隔开一点
+  加了标题 那就不要隔开了*/
+  /*加号表示相邻*/
+  .weui-cells__title+.weui-cells {
+    margin-top: 0;
+  }
+  .weui-cells:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    border-top: 1px solid #e5e5e5;
+    transform: scaleY(.5);
+    transform-origin: 0 0;
+  }
+  .weui-cells:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    border-bottom: 1px solid #e5e5e5;
+    transform: scaleY(.5);
+    transform-origin: 0 100%;
+  }
+  .weui-cell {
+    padding: 10px 15px;
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+  }
+  /*掐头去尾，中间就是bd 与flex:1结合*/
+  .weui-cell__bd {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+  }
+  .weui-cell__ft {
+    text-align: right;
+    color: #999;
+  }
+  .weui-cells_form .weui-cell__ft {
+    font-size: 0;
+  }
+  .weui-switch {
+    /*把浏览器的默认表现关掉 input 太丑*/
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    /*手指触摸宽度35px以上*/
+    width: 52px;
+    height: 32px;
+    border: 1px solid #DFDFDF;
+    border-radius: 16px;
+    outline: 0;
+    border-color: #DFDFDF;
+    /*支持多个transition-property设置*/
+    transition: background-color .1s, border .1s;
+  }
+  .weui-cells_form input {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  .weui-switch:checked {
+    border-color: #04BE02;
+    background-color: #04BE02;
+  }
+  .weui-switch:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: white;
+    transition: transform .05s linear;
+  }
+  .weui-switch:checked:before {
+    transform: scale(0);
+  }
+  .weui-switch:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    transition: transform .35s linear;
+  }
+  .weui-switch:checked:after {
+    transform: translateX(20px);
+  }
+  /*BEM有利于css选择器*/
+  /*商品列表 特殊样式
+  .weui-cell_switch input[type="checkbox"] */
+  /*weui-switch 框架的开关组件 属于对ios的模仿
+  让用户在使用web产品时也是ios的原生体验*/
+  /*.weui-switch>:before+::after
+  appearan将丑的原样被关掉
+  设置大小，打个底 在背景颜色和边框上做铺垫
+  before是白底
+  after，移动，将底部显示出来 30px 少了20px
+  after 将盖在before上面*/
+
+  /*BEM 类名规则
+  .block {} 代表了更高级别的抽象或组件
+  .block__element {} block后代，用于形成一个完整的.block整体
+  .block--modifier {}
+  组件block有不同的状态或不同版本
+
+  B block 某一块展示/功能区域 div nav
+  E element 里面的某个元素 nav__item
+  M modifier 某个元素的状态 .nav--hide
+  nav__item--open||nav__item--active*/
+  /*B .header-tabs 功能区域
+  E .header-tabs__item .header-tab
+  M .header-tabs__item--active  issue*/
+
+  </style>
+</head>
+<body ontouchstart>
+  <div class="container" id="container">
+    <div class="page input">
+      <div class="page_hd"></div>
+      <div class="page_bd">
+        <!-- weui-cell可封装的、独立的模块， 列表
+        BEM自循环 一结构层次
+        二封装的独立模块 核心概念 -->
+        <div class="weui-cells__title">
+          开关
+        </div>
+        <!-- .weui-cells__form Element 表单 -->
+        <div class="weui-cells weui-cells_form">
+          <!-- .weui-cells集合>.weui-cell独立的模块对象
+          复数变单数 -->
+          <!-- weui-cell_switch ?类名
+          switch 不一定要服务于weui-cell结构
+          weui-cell__form
+          Modifier 状态 当前的weui-cell是选中状态还是未选中
+          一个下划线 表示BEM中的M 状态 input:checked
+          BEM 单元 页面切割成很多个单元 单元之间独立 划分单元有利于开发
+          状态block css传统 盒子
+          Element 子元素 有几部分组成 结构的 布局
+          应用有状态 -->
+          <div class="weui-cell weui-cell_switch">
+            <!-- .weui-cell>(.weui-cell__bd+.weui-cell__ft) 都在结构之中 是Element
+            Block 是weui-cell -->
+            <div class="weui-cell__bd">标题文字</div>
+            <div class="weui-cell__ft">
+              <!-- weui-switch input元素，button都是框架的骨架子，独立的 逃离任何的BEM限制 -->
+              <input type="checkbox" class="weui-switch" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
